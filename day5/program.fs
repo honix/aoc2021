@@ -18,7 +18,7 @@ type Field =
 let parseFile path =
     let parseXY =
         (pint32 .>> pchar ',' .>>. pint32)
-        |>> Point.fromTuple //(fun t -> { X = fst t; Y = snd t })
+        |>> Point.fromTuple
 
     let parseLine =
         (parseXY .>> spaces .>> pstring "->" .>> spaces .>>. parseXY)
@@ -85,11 +85,7 @@ let main _ =
     | Success(result, _, _) ->
         let lines = result
 
-        //printfn $"%A{lines}"
-
         let maxCoords = maxCoord lines
-
-        //printfn $"%A{maxCoords}"
 
         let field = {
             Data = Array2D.create (maxCoords.X + 1) (maxCoords.Y + 1) 0
@@ -109,8 +105,6 @@ let main _ =
 
         let fieldAll =
             List.fold punchField field lines
-
-        //printfn $"%A{fieldAll}"
 
         let ``answer one`` = countOverlapPoints fieldNonDiagonal
         let ``answer two`` = countOverlapPoints fieldAll
