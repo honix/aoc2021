@@ -1,6 +1,5 @@
 module program
 
-open System.IO
 open FParsec
 
 type Point =
@@ -40,9 +39,9 @@ let maxCoord lines =
 
 let (|DiagonalLine|NonDiagonalLine|) line =
     if line.A.X = line.B.X || line.A.Y = line.B.Y then
-        NonDiagonalLine line
+        NonDiagonalLine
     else
-        DiagonalLine line
+        DiagonalLine
 
 let punchCoords line =
     let range a b =
@@ -55,11 +54,11 @@ let punchCoords line =
     Seq.map
         Point.fromTuple
         <|  match line with
-            | DiagonalLine _ ->
+            | DiagonalLine ->
                 Seq.zip
                     (range line.A.X line.B.X)
                     (range line.A.Y line.B.Y)
-            | NonDiagonalLine _ ->
+            | NonDiagonalLine ->
                 seq {for x in range line.A.X line.B.X do
                         for y in range line.A.Y line.B.Y ->
                             (x, y)}
@@ -96,7 +95,7 @@ let main _ =
             List.where
                 (fun line ->
                     match line with
-                    | NonDiagonalLine _ -> true
+                    | NonDiagonalLine -> true
                     | _ -> false)
                 lines
 
