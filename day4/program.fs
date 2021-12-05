@@ -64,15 +64,24 @@ let winnerGrid grid =
     
     find rows || find columns
 
-let rec solve numbers grids =
+let rec solveOne numbers grids =
     match numbers with
-    | [] -> failwith "no more numbers, no winner"
+    | [] -> failwith "empty numbers, no winner"
     | x :: xr ->
         let newGrids = punchGrids x grids
         match List.tryFind winnerGrid newGrids with
         | Some grid -> grid, x
-        | None -> solve xr newGrids
+        | None -> solveOne xr newGrids
 
+let rec solveTwo numbers grids =
+    match numbers with
+    | [] -> failwith "empty numbers, no winner"
+    | x :: xr ->
+        let newGrids = punchGrids x grids
+        match List.where (winnerGrid >> not) newGrids with
+        | [] -> failwith "empty loser grids"
+        | grid :: [] -> solveOne xr [grid]
+        | grids -> solveTwo xr grids
 
 [<EntryPoint>]
 let main _ =
@@ -80,10 +89,13 @@ let main _ =
 
     let numbers, grids = parse text
 
-    let solve, x = solve numbers grids
+    let wrap grid x =
+         Array.reduce (+) grid.Data * x
 
-    let ``answer one`` = Array.reduce (+) solve.Data * x
+    let ``answer one`` = solveOne numbers grids ||> wrap
+    let ``answer two`` = solveTwo numbers grids ||> wrap
 
     printfn $"Answer for part one is: {``answer one``}"
+    printfn $"Answer for part two is: {``answer two``}"
 
     0
