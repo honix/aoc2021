@@ -3,7 +3,7 @@ module program
 open System
 open System.IO
 
-let integral x = Seq.reduce (+) (seq { x .. -1 .. 0 })
+let integral x = Seq.reduce (+) (seq { 0 .. x })
 
 let fuelNeededForPose x poses fuelMod =
     Array.map ((fun p -> p - x) >> abs >> fuelMod) poses
@@ -24,7 +24,6 @@ let main _ =
 
     let soluiton name fuelMod =
         let bestPose = bestPose poses min max fuelMod
-
         let overAllFuelNeeded = overAllFuelNeeded bestPose poses fuelMod
 
         printfn $"Solution {name}. Best pose is {bestPose}; Fuel needed {overAllFuelNeeded}"
