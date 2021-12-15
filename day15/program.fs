@@ -22,10 +22,13 @@ let isCoordsInBounds grid row col =
             Array2D.length2 grid > col
         ]
 
+let maxRowCol grid =
+    Array2D.length1 grid - 1,
+    Array2D.length2 grid - 1
+
 let iterateVertical grid =
     seq {
-        let rowMax = Array2D.length1 grid - 1
-        let colMax = Array2D.length2 grid - 1
+        let rowMax, colMax = maxRowCol grid
         for row in 0 .. rowMax do
             for col in 0 .. colMax do
                 yield row, col
@@ -34,10 +37,9 @@ let iterateVertical grid =
 let iterateVerticalBack grid =
     Seq.rev (iterateVertical grid)
 
-let iterateHorizontal grid = 
+let iterateHorizontal grid =
     seq {
-        let rowMax = Array2D.length1 grid - 1
-        let colMax = Array2D.length2 grid - 1
+        let rowMax, colMax = maxRowCol grid
         for col in 0 .. colMax do
             for row in 0 .. rowMax do
                 yield row, col
@@ -48,8 +50,7 @@ let iterateHorizontalBack grid =
 
 let iterateDiag grid =
     seq {
-        let rowMax = Array2D.length1 grid - 1
-        let colMax = Array2D.length2 grid - 1
+        let rowMax, colMax = maxRowCol grid
         for diag in 0 .. rowMax do
             let mutable row = diag
             let mutable col = 0
@@ -92,23 +93,19 @@ let costGrid grid =
             (Array2D.length2 grid)
             Int32.MaxValue
 
-    let maxRow, maxCol =
-        Array2D.length1 grid - 1,
-        Array2D.length2 grid - 1
+    let rowMax, colMax = maxRowCol grid
 
-    costGrid.[maxRow, maxCol] <- grid.[maxRow, maxCol]
-
-    let punch (row, col) =
-        let closeMin = closeMin costGrid row col
-        costGrid.[row, col] <-
-            min
-                (costGrid.[row, col])
-                (closeMin + grid.[row, col])
+    costGrid.[rowMax, colMax] <- grid.[rowMax, colMax]
 
     let punchIter iter =
-        Seq.iter punch (iter costGrid)
+        let punch (row, col) =
+            let closeMin = closeMin costGrid row col
+            costGrid.[row, col] <-
+                min
+                    (costGrid.[row, col])
+                    (closeMin + grid.[row, col])
 
-    punchIter iterateDiagBackSkip1
+        Seq.iter punch (iter costGrid)
 
     let circle = [
         iterateHorizontalBack
@@ -116,6 +113,8 @@ let costGrid grid =
         iterateDiagBack
         iterateHorizontal
     ]
+
+    punchIter iterateDiagBackSkip1
 
     // One might need more than 3 turns to solve
     for _ in 1 .. 3 do
